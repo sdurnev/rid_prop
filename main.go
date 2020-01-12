@@ -22,8 +22,8 @@ type rid_param []param
 
 var data = rid_param{
 	{"C", 0, "Start"},
-	{"R008234", 3, "R008234"},
-	{"R009235", 3, "R009235"},
+	{"R008234", 4, "MAIN_FREQ"},
+	{"R009235", 4, "GENS_FREQ"},
 	{"R012229", 3, "R012229"},
 	{"R018235", 3, "R018235"},
 	{"R020228", 3, "R020228"},
@@ -126,14 +126,14 @@ func ParseData(buff []byte, num int) string {
 	if data[num].Type == 1 {
 		oldString := string(buff)
 		newString := strings.Split(oldString, string(rune(4)))
-		newString = strings.Split(newString[0], "D00")
+		newString = strings.Split(newString[0], "D0")
 		f, _ := strconv.ParseFloat(newString[1], 64)
 		return fmt.Sprintf("%0.2f", f/1000)
 	}
 	if data[num].Type == 2 {
 		oldString := string(buff)
 		newString := strings.Split(oldString, string(rune(4)))
-		newString = strings.Split(newString[0], "D00")
+		newString = strings.Split(newString[0], "D0")
 		f, _ := strconv.ParseFloat(newString[1], 64)
 		return fmt.Sprintf("%0.2f", f/10000)
 	}
@@ -142,6 +142,13 @@ func ParseData(buff []byte, num int) string {
 		newString := strings.Split(oldString, string(rune(4)))
 
 		return fmt.Sprintf("\"%s\"", newString[0])
+	}
+	if data[num].Type == 4 {
+		oldString := string(buff)
+		newString := strings.Split(oldString, string(rune(4)))
+		newString = strings.Split(newString[0], "D0")
+		f, _ := strconv.ParseFloat(newString[1], 64)
+		return fmt.Sprintf("%0.2f", f/1000000)
 	}
 	return "0"
 }
