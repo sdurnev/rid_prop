@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="All" type="CompoundRunConfigurationType">
+    <toRun name="rid_prop_rpi" type="GoApplicationRunConfiguration" />
+    <toRun name="rid_prop_linux" type="GoApplicationRunConfiguration" />
+    <toRun name="rid_prop_win" type="GoApplicationRunConfiguration" />
+    <toRun name="rid_prop_macos" type="GoApplicationRunConfiguration" />
+    <method v="2" />
+  </configuration>
+</component>
