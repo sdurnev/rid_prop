@@ -107,7 +107,7 @@ func SocketClient(ip string, port int) {
 		if i == len(data)-1 {
 			buff := make([]byte, 1024)
 			conn.Write([]byte(data[i].Name))
-			fmt.Printf(", \"version\":%s}", version)
+			fmt.Printf(", \"version\":\"%s\"}", version)
 			conn.Read(buff)
 		}
 	}
@@ -115,30 +115,33 @@ func SocketClient(ip string, port int) {
 
 func ParseData(buff []byte, num int) string {
 	if data[num].Type == 0 {
-		return string(buff)
+		var newBuff []byte
+		for l := 0; l < len(buff)-2; l++ {
+			newBuff = append(newBuff, buff[l])
+		}
+		//fmt.Println(len(buff))
+		//fmt.Println(len(newBuff))
+		return string(newBuff)
 	}
 	if data[num].Type == 1 {
-		var newBuff []byte
-		for l := 0; l < len(buff); l++ {
-			if l >= 7 && l < 13 {
-				newBuff = append(newBuff, buff[l])
-			}
-		}
-		f, _ := strconv.ParseFloat(string(newBuff), 64)
+		oldString := string(buff)
+		newString := strings.Split(oldString, string(rune(4)))
+		newString = strings.Split(newString[0], "D00")
+		f, _ := strconv.ParseFloat(newString[1], 64)
 		return fmt.Sprintf("%0.2f", f/1000)
 	}
 	if data[num].Type == 2 {
-		var newBuff []byte
-		for l := 0; l < len(buff); l++ {
-			if l >= 7 && l < 13 {
-				newBuff = append(newBuff, buff[l])
-			}
-		}
-		f, _ := strconv.ParseFloat(string(newBuff), 64)
+		oldString := string(buff)
+		newString := strings.Split(oldString, string(rune(4)))
+		newString = strings.Split(newString[0], "D00")
+		f, _ := strconv.ParseFloat(newString[1], 64)
 		return fmt.Sprintf("%0.2f", f/10000)
 	}
 	if data[num].Type == 3 {
-		return fmt.Sprintf("\"%s\"", string(buff))
+		oldString := string(buff)
+		newString := strings.Split(oldString, string(rune(4)))
+
+		return fmt.Sprintf("\"%s\"", newString[0])
 	}
 	return "0"
 }
