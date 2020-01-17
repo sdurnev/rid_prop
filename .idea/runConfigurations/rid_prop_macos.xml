@@ -9,8 +9,7 @@
     <kind value="FILE" />
     <filePath value="$PROJECT_DIR$/main.go" />
     <directory value="$PROJECT_DIR$/" />
-    <output_directory value="$PROJECT_DIR$/bin/0.00.1/macos" />
-    <option name="run" value="false" />
+    <output_directory value="$PROJECT_DIR$/bin/0.00.2/macos" />
     <method v="2" />
   </configuration>
 </component>

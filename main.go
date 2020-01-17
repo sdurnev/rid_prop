@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const version = "0.00.1"
+const version = "0.00.2"
 
 type param struct {
 	Req  string
@@ -75,6 +75,7 @@ func main() {
 }
 
 func SocketClient(ip string, port int) {
+	var tempBuf []string
 	addr := strings.Join([]string{ip, strconv.Itoa(port)}, ":")
 	d := net.Dialer{}
 	d.Timeout = 500 * time.Millisecond
@@ -85,19 +86,35 @@ func SocketClient(ip string, port int) {
 		os.Exit(1)
 	}
 	defer conn.Close()
+	//fmt.Print("{")
+	for i := 0; i < len(data); i++ {
+		buff := make([]byte, 1024)
+		conn.Write([]byte(data[i].Req))
+		//fmt.Printf("\"%s\":", data[i].Name)
+		conn.Read(buff)
+		//fmt.Printf("\"%s\":", data[i].Name)
+		tempBuf = append(tempBuf, fmt.Sprintf("%s", buff))
+		// p := ParseData(buff, i)
+	}
+	//	fmt.Println(tempBuf)
+	PrintData(tempBuf)
+}
+
+func PrintData(tempBuf []string) {
+
+	if tempBuf == nil {
+		fmt.Print("{\"status\":\"error\",\"error\":\"error1\"}")
+		os.Exit(1)
+	}
+
 	fmt.Print("{")
 	for i := 0; i < len(data); i++ {
 		if i == 0 {
-			buff := make([]byte, 1024)
-			conn.Write([]byte(data[i].Req))
-			conn.Read(buff)
+
 		}
 		if i > 0 && i < len(data)-1 {
-			buff := make([]byte, 1024)
-			conn.Write([]byte(data[i].Req))
 			fmt.Printf("\"%s\":", data[i].Name)
-			conn.Read(buff)
-			p := ParseData(buff, i)
+			p := ParseData(tempBuf[i], i)
 			if i < (len(data) - 2) {
 				fmt.Printf("%s,", p)
 			} else {
@@ -105,46 +122,41 @@ func SocketClient(ip string, port int) {
 			}
 		}
 		if i == len(data)-1 {
-			buff := make([]byte, 1024)
-			conn.Write([]byte(data[i].Name))
 			fmt.Printf(", \"version\":\"%s\"}", version)
-			conn.Read(buff)
 		}
 	}
 }
 
-func ParseData(buff []byte, num int) string {
+func ParseData(buff string, num int) string {
 	if data[num].Type == 0 {
 		var newBuff []byte
 		for l := 0; l < len(buff)-2; l++ {
 			newBuff = append(newBuff, buff[l])
 		}
-		//fmt.Println(len(buff))
-		//fmt.Println(len(newBuff))
 		return string(newBuff)
 	}
 	if data[num].Type == 1 {
-		oldString := string(buff)
+		oldString := buff
 		newString := strings.Split(oldString, string(rune(4)))
 		newString = strings.Split(newString[0], "D0")
 		f, _ := strconv.ParseFloat(newString[1], 64)
 		return fmt.Sprintf("%0.2f", f/1000)
 	}
 	if data[num].Type == 2 {
-		oldString := string(buff)
+		oldString := buff
 		newString := strings.Split(oldString, string(rune(4)))
 		newString = strings.Split(newString[0], "D0")
 		f, _ := strconv.ParseFloat(newString[1], 64)
 		return fmt.Sprintf("%0.2f", f/10000)
 	}
 	if data[num].Type == 3 {
-		oldString := string(buff)
+		oldString := buff
 		newString := strings.Split(oldString, string(rune(4)))
 
 		return fmt.Sprintf("\"%s\"", newString[0])
 	}
 	if data[num].Type == 4 {
-		oldString := string(buff)
+		oldString := buff
 		newString := strings.Split(oldString, string(rune(4)))
 		newString = strings.Split(newString[0], "D0")
 		f, _ := strconv.ParseFloat(newString[1], 64)
