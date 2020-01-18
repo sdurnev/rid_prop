@@ -97,7 +97,7 @@ func SocketClient(ip string, port int) {
 		tempBuf = append(tempBuf, fmt.Sprintf("%s", buff))
 		// p := ParseData(buff, i)
 	}
-	fmt.Println(tempBuf)
+	//fmt.Println(tempBuf)
 	PrintData(tempBuf)
 }
 
