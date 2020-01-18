@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const version = "0.00.2"
+const version = "0.00.3"
 
 type param struct {
 	Req  string
@@ -35,13 +35,13 @@ var data = rid_param{
 	{"R036235", 1, "GENS_L1-N"},
 	{"R037236", 1, "GENS_L2-N"},
 	{"R038237", 1, "GENS_L3-N"},
-	{"R039238", 3, "R039238"},
+	{"R039238", 5, "GENS_FUEL1"},
 	{"R041231", 3, "R041231"},
 	{"R042232", 3, "R042232"},
 	{"R043233", 3, "R043233"},
 	{"R056237", 2, "GENS_BAT_U"},
 	{"R057238", 3, "R057238"},
-	{"R058239", 3, "R058239"},
+	{"R058239", 2, "GENS_TEN_D"},
 	{"R130230", 3, "R130230"},
 	{"R132232", 3, "R132232"},
 	{"R144235", 3, "R144235"},
@@ -90,20 +90,25 @@ func SocketClient(ip string, port int) {
 	for i := 0; i < len(data); i++ {
 		buff := make([]byte, 1024)
 		conn.Write([]byte(data[i].Req))
+		time.Sleep(50 * time.Millisecond)
 		//fmt.Printf("\"%s\":", data[i].Name)
 		conn.Read(buff)
 		//fmt.Printf("\"%s\":", data[i].Name)
 		tempBuf = append(tempBuf, fmt.Sprintf("%s", buff))
 		// p := ParseData(buff, i)
 	}
-	//	fmt.Println(tempBuf)
+	fmt.Println(tempBuf)
 	PrintData(tempBuf)
 }
 
 func PrintData(tempBuf []string) {
 
+	if len(tempBuf) < len(data) {
+		fmt.Print("{\"status\":\"error\",\"error\":\"short packet\"}")
+		os.Exit(1)
+	}
 	if tempBuf == nil {
-		fmt.Print("{\"status\":\"error\",\"error\":\"error1\"}")
+		fmt.Print("{\"status\":\"error\",\"error\":\"no data in packet\"}")
 		os.Exit(1)
 	}
 
@@ -161,6 +166,13 @@ func ParseData(buff string, num int) string {
 		newString = strings.Split(newString[0], "D0")
 		f, _ := strconv.ParseFloat(newString[1], 64)
 		return fmt.Sprintf("%0.2f", f/1000000)
+	}
+	if data[num].Type == 5 {
+		oldString := buff
+		newString := strings.Split(oldString, string(rune(4)))
+		newString = strings.Split(newString[0], "D0")
+		f, _ := strconv.ParseFloat(newString[1], 64)
+		return fmt.Sprintf("%0.2f", f/100)
 	}
 	return "0"
 }
