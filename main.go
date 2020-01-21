@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const version = "0.00.3"
+const version = "0.00.4"
 
 type param struct {
 	Req  string
@@ -24,7 +24,7 @@ var data = rid_param{
 	{"C", 0, "Start"},
 	{"R008234", 4, "MAIN_FREQ"},
 	{"R009235", 4, "GENS_FREQ"},
-	{"R012229", 3, "R012229"},
+	{"R012229", 1, "GENS_WORKH"},
 	{"R018235", 3, "R018235"},
 	{"R020228", 3, "R020228"},
 	{"R021229", 3, "R021229"},
@@ -143,7 +143,9 @@ func ParseData(buff string, num int) string {
 	if data[num].Type == 1 {
 		oldString := buff
 		newString := strings.Split(oldString, string(rune(4)))
+		//fmt.Println(newString)
 		newString = strings.Split(newString[0], "D0")
+		//fmt.Println(newString)
 		f, _ := strconv.ParseFloat(newString[1], 64)
 		return fmt.Sprintf("%0.2f", f/1000)
 	}
