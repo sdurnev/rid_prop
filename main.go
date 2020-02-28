@@ -14,7 +14,7 @@ const version = "0.00.4"
 
 type param struct {
 	Req  string
-	Type int
+	Type float64
 	Name string
 }
 
@@ -22,42 +22,42 @@ type rid_param []param
 
 var data = rid_param{
 	{"C", 0, "Start"},
-	{"R008234", 4, "MAIN_FREQ"},
-	{"R009235", 4, "GENS_FREQ"},
+	{"R008234", 100, "MAIN_FREQ"},
+	{"R009235", 1, "GENS_FREQ"},
 	{"R012229", 1, "GENS_WORKH"},
-	{"R018235", 3, "R018235"},
-	{"R020228", 3, "R020228"},
-	{"R021229", 3, "R021229"},
-	{"R024232", 3, "R024232"},
+	{"R018235", 1, "R018235"},
+	{"R020228", 1, "R020228"},
+	{"R021229", 1, "R021229"},
+	{"R024232", 1, "R024232"},
 	{"R033232", 1, "MAIN_L1-N"},
 	{"R034233", 1, "MAIN_L2-N"},
 	{"R035234", 1, "MAIN_L3-N"},
 	{"R036235", 1, "GENS_L1-N"},
 	{"R037236", 1, "GENS_L2-N"},
 	{"R038237", 1, "GENS_L3-N"},
-	{"R039238", 5, "GENS_FUEL1"},
-	{"R041231", 3, "R041231"},
-	{"R042232", 3, "R042232"},
-	{"R043233", 3, "R043233"},
-	{"R056237", 2, "GENS_BAT_U"},
-	{"R057238", 3, "R057238"},
-	{"R058239", 2, "GENS_TEN_D"},
-	{"R130230", 3, "GENS_HOUR_TO_MAINT"},
-	{"R132232", 3, "R132232"},
-	{"R144235", 3, "R144235"},
-	{"R155237", 3, "R155237"},
-	{"R161234", 3, "R161234"},
-	{"R166239", 3, "R166239"},
-	{"R183238", 3, "R183238"},
-	{"R194240", 3, "R194240"},
-	{"R216235", 3, "R216235"},
-	{"R217236", 3, "R217236"},
-	{"R218237", 3, "R218237"},
-	{"R223233", 3, "R223233"},
-	{"R228238", 3, "R228238"},
-	{"R229239", 3, "R229239"},
-	{"R231232", 3, "R231232"},
-	{"R235236", 3, "R235236"},
+	{"R039238", 1, "GENS_FUEL1"},
+	{"R041231", 1, "R041231"},
+	{"R042232", 1, "R042232"},
+	{"R043233", 1, "R043233"},
+	{"R056237", 10, "GENS_BAT_U"},
+	{"R057238", 1, "R057238"},
+	{"R058239", 10, "GENS_TEN_D"},
+	{"R130230", 1, "R130230"},
+	{"R132232", 1, "R132232"},
+	{"R144235", 1, "R144235"},
+	{"R155237", 1, "R155237"},
+	{"R161234", 1, "R161234"},
+	{"R166239", 1, "R166239"},
+	{"R183238", 1, "R183238"},
+	{"R194240", 1, "R194240"},
+	{"R216235", 1, "R216235"},
+	{"R217236", 1, "R217236"},
+	{"R218237", 1, "R218237"},
+	{"R223233", 1, "R223233"},
+	{"R228238", 1, "R228238"},
+	{"R229239", 1, "R229239"},
+	{"R231232", 1, "R231232"},
+	{"R235236", 1, "R235236"},
 	{"E", 0, "End"},
 }
 
@@ -82,11 +82,10 @@ func SocketClient(ip string, port int) {
 	conn, err := d.Dial("tcp", addr)
 
 	if err != nil {
-		fmt.Printf("{\"status\":\"error\",\"error\":\"%s\"}", err)
+		fmt.Printf("{\"status\":\"error\",\"error\":\"%s\"}\n", err)
 		os.Exit(1)
 	}
 	defer conn.Close()
-	//fmt.Print("{")
 	for i := 0; i < len(data); i++ {
 		buff := make([]byte, 1024)
 		conn.Write([]byte(data[i].Req))
@@ -97,84 +96,55 @@ func SocketClient(ip string, port int) {
 		tempBuf = append(tempBuf, fmt.Sprintf("%s", buff))
 		// p := ParseData(buff, i)
 	}
-	//fmt.Println(tempBuf)
-	PrintData(tempBuf)
+	parsData(tempBuf)
 }
 
-func PrintData(tempBuf []string) {
+func parsData(data []string) {
+	var newArr []float64
+	for i := 0; i < len(data)-1; i++ {
+		if i != 0 && i != len(data) {
+			newString := strings.Split(data[i], string(rune(4)))
+			newString = strings.Split(newString[0], "D")
+			newTempString := newString[1]
+			newTempUint, _ := strconv.ParseUint(newTempString, 10, 64)
+			newStr := strconv.FormatUint(newTempUint, 10)
+			if newTempUint != 0 {
+				newTem2Str := string(newStr[0:(len(newStr) / 2)])
+				//fmt.Println(newTem2Str)
+				a, _ := strconv.ParseFloat(newTem2Str, 32)
+				newArr = append(newArr, a)
+			} else {
+				//fmt.Println(newStr)
+				b, _ := strconv.ParseFloat(newStr, 32)
+				newArr = append(newArr, b)
+			}
+		}
+	}
 
-	if len(tempBuf) < len(data) {
-		fmt.Print("{\"status\":\"error\",\"error\":\"short packet\"}")
+	PrintData(newArr)
+}
+
+func PrintData(tempBuf []float64) {
+	data1 := data[1:37]
+	if len(tempBuf) < len(data)-2 {
+		fmt.Print("{\"status\":\"error\",\"error\":\"short packet\"}\n")
 		os.Exit(1)
 	}
 	if tempBuf == nil {
-		fmt.Print("{\"status\":\"error\",\"error\":\"no data in packet\"}")
+		fmt.Print("{\"status\":\"error\",\"error\":\"no data in packet\"}\n")
 		os.Exit(1)
 	}
+	for i := 0; i < len(data1); i++ {
 
-	fmt.Print("{")
-	for i := 0; i < len(data); i++ {
 		if i == 0 {
+			fmt.Print("{")
+		}
+		fmt.Printf("\"%s\":", data1[i].Name)
+		p := tempBuf[i]
+		fmt.Printf("%.2f,", p/data1[i].Type)
 
-		}
-		if i > 0 && i < len(data)-1 {
-			fmt.Printf("\"%s\":", data[i].Name)
-			p := ParseData(tempBuf[i], i)
-			if i < (len(data) - 2) {
-				fmt.Printf("%s,", p)
-			} else {
-				fmt.Printf("%s", p)
-			}
-		}
-		if i == len(data)-1 {
-			fmt.Printf(", \"version\":\"%s\"}", version)
+		if i == len(data1)-1 {
+			fmt.Printf(" \"version\":\"%s\"}\n", version)
 		}
 	}
-}
-
-func ParseData(buff string, num int) string {
-	if data[num].Type == 0 {
-		var newBuff []byte
-		for l := 0; l < len(buff)-2; l++ {
-			newBuff = append(newBuff, buff[l])
-		}
-		return string(newBuff)
-	}
-	if data[num].Type == 1 {
-		oldString := buff
-		newString := strings.Split(oldString, string(rune(4)))
-		//fmt.Println(newString)
-		newString = strings.Split(newString[0], "D0")
-		//fmt.Println(newString)
-		f, _ := strconv.ParseFloat(newString[1], 64)
-		return fmt.Sprintf("%0.2f", f/1000)
-	}
-	if data[num].Type == 2 {
-		oldString := buff
-		newString := strings.Split(oldString, string(rune(4)))
-		newString = strings.Split(newString[0], "D0")
-		f, _ := strconv.ParseFloat(newString[1], 64)
-		return fmt.Sprintf("%0.2f", f/10000)
-	}
-	if data[num].Type == 3 {
-		oldString := buff
-		newString := strings.Split(oldString, string(rune(4)))
-
-		return fmt.Sprintf("\"%s\"", newString[0])
-	}
-	if data[num].Type == 4 {
-		oldString := buff
-		newString := strings.Split(oldString, string(rune(4)))
-		newString = strings.Split(newString[0], "D0")
-		f, _ := strconv.ParseFloat(newString[1], 64)
-		return fmt.Sprintf("%0.2f", f/1000000)
-	}
-	if data[num].Type == 5 {
-		oldString := buff
-		newString := strings.Split(oldString, string(rune(4)))
-		newString = strings.Split(newString[0], "D0")
-		f, _ := strconv.ParseFloat(newString[1], 64)
-		return fmt.Sprintf("%0.2f", f/100)
-	}
-	return "0"
 }
