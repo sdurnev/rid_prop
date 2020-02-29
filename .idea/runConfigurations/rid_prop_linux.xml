@@ -9,7 +9,7 @@
     <kind value="FILE" />
     <filePath value="$PROJECT_DIR$/main.go" />
     <directory value="$PROJECT_DIR$/" />
-    <output_directory value="$PROJECT_DIR$/bin/0.00.4/linux" />
+    <output_directory value="$PROJECT_DIR$/bin/0.00.5/linux" />
     <option name="run" value="false" />
     <method v="2" />
   </configuration>

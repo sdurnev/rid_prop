@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const version = "0.00.4"
+const version = "0.00.5"
 
 type param struct {
 	Req  string
@@ -23,7 +23,7 @@ type rid_param []param
 var data = rid_param{
 	{"C", 0, "Start"},
 	{"R008234", 100, "MAIN_FREQ"},
-	{"R009235", 1, "GENS_FREQ"},
+	{"R009235", 100, "GENS_FREQ"},
 	{"R012229", 1, "GENS_WORKH"},
 	{"R018235", 1, "R018235"},
 	{"R020228", 1, "R020228"},
